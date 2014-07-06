@@ -15,14 +15,16 @@ import tweepy
 from coroutine import coroutine
 
 # Broadcasting an infinite Twitter stream.
-try:
-    execfile('../util/keys.py')
-except IOError:
-    execfile('../hello-world/util/keys.py')
+execfile('../../git-repos/keys.py')
 
-def ts(): return datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+def ts(): 
+    '''
+    '2014/07/06 16:31:25'
+    '''
+    return datetime.now().strftime('%Y/%m/%d %H:%M:%S')
 
-def pid(): return os.getpid()
+def pid(): 
+    return os.getpid()
 
 
 @coroutine
