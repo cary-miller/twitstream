@@ -1,24 +1,28 @@
-# cobroadcast.py
-#
-# An example of broadcasting a data stream onto multiple coroutine targets.
-# 
-# Based on Beazley's coroutine examples.
-# http://dabeaz.com/coroutines/
-# http://antroy.blogspot.com/2007/04/python-coroutines.html
+'''
+Broadcasting an infinite Twitter stream to coroutines.
+An example of broadcasting a data stream onto multiple coroutine targets.
+ 
+Based on Beazley's coroutine examples.
+http://dabeaz.com/coroutines/
+http://antroy.blogspot.com/2007/04/python-coroutines.html
+'''
 
+# builtins
 from pprint import pprint
 import re
 import time
 from datetime import datetime
 import random
+# 3rd party
 import tweepy
+# local
 from coroutine import coroutine
 
-# Broadcasting an infinite Twitter stream.
 execfile('../../git-repos/keys.py')
 
 def ts(): 
     '''
+    >>> ts()
     '2014/07/06 16:31:25'
     '''
     return datetime.now().strftime('%Y/%m/%d %H:%M:%S')
@@ -29,7 +33,13 @@ def pid():
 
 @coroutine
 def language_user(lang, f_target=None, out_file=None):
-    '''A filter.
+    '''A filter.  Propagates users with primary language == lang.
+    Examples
+    >>> twit_stream(language_user('es')) 
+    # Displays all spanish messages to stdout.
+    >>> twit_stream(language_user('en')) 
+    # Displays all english messages to stdout.
+
     '''
     if f_target is None:
         f_target = printer_status(lang)
@@ -170,8 +180,7 @@ def demo_bc(): # ################ some examples ################ #
     # Filters #
     f_you  = grep_status('you', p_generic) # messages containing 'you'
     f_me   = grep_status('me', p_generic) # messages containing  'me'
-    f_uNme = grep_status('you', grep_status('me', p_generic) ) # you & me
-    # Above gets both 'you' and 'me'.  Contrast with 
+    f_uNme = grep_status('you', grep_status('me', p_generic) ) # you AND me
     f_youOrMe  = grep_status(['you', 'me'], p_generic) # 'you' OR 'me'
 
 #    save_you  = grep_status('you', printer_status('su', open('tweet_you.log'))) 
@@ -190,15 +199,35 @@ def demo_bc(): # ################ some examples ################ #
     globals().update(locals())
 
 
+def doc(): # ################ some examples ################ #
+    '''
+    # All messages to stdout, prepended with >>.
     # twit_stream(printer_status('>>'))
+    # 
+    # All messages to a file.
     # twit_stream(printer_status('>>', open('tweet_es.log', 'a')))
+    # 
+    # All spanish messages
     # twit_stream(language_user('es'))
+    # 
+    # All spanish messages to a file.
     # twit_stream(language_user('es', out_file=open('tweet_es.log', 'a')))
+    # 
+    # Messages containing a word
     # twit_stream(grep_status('love'))
+    # 
+    # Messages containing either word
     # twit_stream(grep_status(['love', 'hate']))
+    # 
+    # English messages containing a word
     # twit_stream(divert('en', 'love'))
+    # 
+    # ... to a file
     # twit_stream(divert('en', 'love', open('tweet_es.log', 'a')))
+    # 
+    # All of the above at the same time.
     # twit_stream(broadcast(bc))
+    '''
 
 
  
@@ -222,65 +251,10 @@ def name_it(func):
     return func
 
 
-def demo_unique_in():
-    # example of using unique_in
-    id_repo = set()
-    @unique_in(id_repo)
-    def generate_id():
-        return random.random()
-    print id_repo
-    for i in range(4): generate_id()
-    print id_repo
+id_repo = set()
+@unique_in(id_repo)
+def generate_id():
+    return random.choice(range(111))
+for i in range(4): generate_id()
 
 
-import inspect
-def g(): 
-    self_name = inspect.getframeinfo(inspect.currentframe()).function
-    # What a tedious way to get one's own name !!!!!!!!!!!!!!!!!!!!!!
-    # But it works.
-    self = eval(self_name)
-    i=0
-    while True:
-        word = (yield)
-        print 'g.%d %s' % (i, word)
-        yield (i, word)
-        i+=1
-
-def g(): 
-    i=0
-    while True:
-        word = (yield)
-        print 'g.%d %s' % (i, word)
-        yield (i, word)
-        i+=1
-
-
-
-f = g(); f.next()
-h = g(); h.next()
-
-def i_gen():
-    i=0
-    while True:
-        yield i
-        i+=1
-
-i = i_gen()
-
-#f.send('foo'+str(i.next()))
-# "set noautoindent
-# " for pasting from outside.
-# http://superuser.com/questions/134709/how-can-i-keep-the-code-formated-as-original-source-when-i-paste-them-to-vim
-
-start = time.time()
-tick = lambda:'%1.2f' %(time.time()-start)
-
-
-# Threadless concurrency in Python.
-# message-passing
-# functional
-# analyze the twitter stream.
-# erlang erlports
-# 
-# 
-#
